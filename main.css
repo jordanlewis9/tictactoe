@@ -10,7 +10,7 @@
   width: 40px;
   margin: 60px auto;
   margin-bottom: 0;
-  background: green;
+  background: #00ff44;
 }
 
 .dark-mode-text {
@@ -27,7 +27,7 @@
 .dark-mode-selector {
   height: 20px;
   width: 20px;
-  background: purple;
+  background: #ff0099;
 }
 
 .dark-mode-label {
@@ -67,10 +67,50 @@
   border-right: 2px solid black;
 }
 
+.button-container {
+  width: 100%;
+}
+
+.new-game {
+  display: block;
+  margin: 0 auto;
+  width: 150px;
+  height: 40px;
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.new-game-dark {
+  background: #00ff44;
+  color: #ff0099;
+}
+
 .X,
 .O {
   display: block;
   font-size: 50px;
+}
+
+.winning-message {
+  margin-top: 50px;
+  text-align: center;
+}
+
+.winning-message-light {
+  font-size: 40px;
+}
+
+.winning-message-darkX {
+  font-size: 40px;
+  color: #00ff44;
+}
+
+.winning-message-darkO {
+  font-size: 40px;
+  color: #ff0099;
 }
 
 .dark-mode-background {

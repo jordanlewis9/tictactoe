@@ -4,10 +4,13 @@ class Gameplay {
     this.darkModeContainer = document.querySelector(".dark-mode-container");
     this.darkModeOff = document.querySelector(".dark-mode-off");
     this.darkModeOn = document.querySelector(".dark-mode-on");
+    this.newGame = document.querySelector(".new-game");
+    this.winningMessage = document.querySelector(".winning-message");
     this.X = `<div class="X">X</div>`;
     this.O = `<div class="O">O</div>`;
     this.turn = "X";
     this.game = "on";
+    this.darkMode = "off";
     this.one = document.querySelector("#one");
     this.two = document.querySelector("#two");
     this.three = document.querySelector("#three");
@@ -35,6 +38,7 @@ class Gameplay {
       "click",
       this.setDarkModeMarker.bind(this)
     );
+    this.newGame.addEventListener("click", this.createNewGame.bind(this));
   }
 
   addMove(e) {
@@ -56,49 +60,49 @@ class Gameplay {
       this.oneLine.every((el) => el.innerHTML === this.X) ||
       this.oneLine.every((el) => el.innerHTML === this.O)
     ) {
-      alert(`${this.turn} is the winner!`);
+      this.winningMessage.innerHTML = this.championMessage();
       this.game = "off";
     } else if (
       this.twoLine.every((el) => el.innerHTML === this.X) ||
       this.twoLine.every((el) => el.innerHTML === this.O)
     ) {
-      alert(`${this.turn} is the winner!`);
+      this.winningMessage.innerHTML = this.championMessage();
       this.game = "off";
     } else if (
       this.threeLine.every((el) => el.innerHTML === this.X) ||
       this.threeLine.every((el) => el.innerHTML === this.O)
     ) {
-      alert(`${this.turn} is the winner!`);
+      this.winningMessage.innerHTML = this.championMessage();
       this.game = "off";
     } else if (
       this.fourLine.every((el) => el.innerHTML === this.X) ||
       this.fourLine.every((el) => el.innerHTML === this.O)
     ) {
-      alert(`${this.turn} is the winner!`);
+      this.winningMessage.innerHTML = this.championMessage();
       this.game = "off";
     } else if (
       this.fiveLine.every((el) => el.innerHTML === this.X) ||
       this.fiveLine.every((el) => el.innerHTML === this.O)
     ) {
-      alert(`${this.turn} is the winner!`);
+      this.winningMessage.innerHTML = this.championMessage();
       this.game = "off";
     } else if (
       this.sixLine.every((el) => el.innerHTML === this.X) ||
       this.sixLine.every((el) => el.innerHTML === this.O)
     ) {
-      alert(`${this.turn} is the winner!`);
+      this.winningMessage.innerHTML = this.championMessage();
       this.game = "off";
     } else if (
       this.sevenLine.every((el) => el.innerHTML === this.X) ||
       this.sevenLine.every((el) => el.innerHTML === this.O)
     ) {
-      alert(`${this.turn} is the winner!`);
+      this.winningMessage.innerHTML = this.championMessage();
       this.game = "off";
     } else if (
       this.eightLine.every((el) => el.innerHTML === this.X) ||
       this.eightLine.every((el) => el.innerHTML === this.O)
     ) {
-      alert(`${this.turn} is the winner!`);
+      this.winningMessage.innerHTML = this.championMessage();
       this.game = "off";
     } else if (
       this.catsGame.every(
@@ -113,10 +117,31 @@ class Gameplay {
     if (e.target === this.darkModeOn) {
       this.X = `<div class="X X-dark">X</div>`;
       this.O = `<div class="O O-dark">O</div>`;
+      this.darkMode = "on";
     } else if (e.target === this.darkModeOff) {
       this.X = `<div class="X">X</div>`;
       this.O = `<div class="O">O</div>`;
+      this.darkMode = "off";
     }
+  }
+
+  championMessage() {
+    if (this.darkMode === "off") {
+      return `<p class="winning-message-light">${
+        this.turn
+      } is the Champion!</p>`;
+    } else if (this.turn === "X" && this.darkMode === "on") {
+      return `<p class="winning-message-darkX">X is the Champion!</p>`;
+    } else if (this.turn === "O" && this.darkMode === "on") {
+      return `<p class="winning-message-darkO">O is the Champion!</p>`;
+    }
+  }
+
+  createNewGame() {
+    this.catsGame.forEach((square) => (square.innerHTML = ""));
+    this.winningMessage.innerHTML = "";
+    this.turn = "X";
+    this.game = "on";
   }
 }
 
@@ -145,6 +170,7 @@ class DarkMode {
     this.X = document.querySelectorAll(".X");
     this.O = document.querySelectorAll(".O");
     this.darkText = document.querySelector(".dark-text");
+    this.newGame = document.querySelector(".new-game");
     this.events();
   }
 
@@ -161,6 +187,7 @@ class DarkMode {
       this.darkModeOn.classList.add("dark-mode-selector");
       document.body.classList.add("dark-mode-background");
       this.darkText.classList.add("dark-mode-text");
+      this.newGame.classList.add("new-game-dark");
       this.boardArray.forEach((square) => {
         square.classList.add(`${square.id}-dark`);
       });
@@ -176,6 +203,7 @@ class DarkMode {
       this.darkModeOn.classList.remove("dark-mode-selector");
       document.body.classList.remove("dark-mode-background");
       this.darkText.classList.remove("dark-mode-text");
+      this.newGame.classList.remove("new-game-dark");
       this.boardArray.forEach((square) => {
         square.classList.remove(`${square.id}-dark`);
       });
