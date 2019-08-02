@@ -1,0 +1,19 @@
+{
+  "name": "tictactoe",
+  "version": "1.0.0",
+  "description": "everyone needs a tictactoe game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jordanlewis9/tictactoe.git"
+  },
+  "author": "Jordan Lewis",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jordanlewis9/tictactoe/issues"
+  },
+  "homepage": "https://github.com/jordanlewis9/tictactoe#readme"
+}
