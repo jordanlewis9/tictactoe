@@ -11,6 +11,7 @@ class Gameplay {
     this.turn = "X";
     this.game = "on";
     this.darkMode = "off";
+    this.tie = false;
     this.one = document.querySelector("#one");
     this.two = document.querySelector("#two");
     this.three = document.querySelector("#three");
@@ -109,7 +110,8 @@ class Gameplay {
         (el) => el.innerHTML === this.X || el.innerHTML === this.O
       )
     ) {
-      alert("Tie Game");
+      this.tie = true;
+      this.winningMessage.innerHTML = this.championMessage();
     }
   }
 
@@ -126,7 +128,11 @@ class Gameplay {
   }
 
   championMessage() {
-    if (this.darkMode === "off") {
+    if (this.darkMode === "off" && this.tie) {
+      return `<p class="tie-game-light">Game is a tie.</p>`;
+    } else if (this.darkMode === "on" && this.tie) {
+      return `<p class="tie-game-dark">Game is a tie.</p>`;
+    } else if (this.darkMode === "off") {
       return `<p class="winning-message-light">${
         this.turn
       } is the Champion!</p>`;
@@ -142,6 +148,7 @@ class Gameplay {
     this.winningMessage.innerHTML = "";
     this.turn = "X";
     this.game = "on";
+    this.tie = false;
   }
 }
 

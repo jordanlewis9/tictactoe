@@ -85,7 +85,8 @@
 
 .new-game-dark {
   background: #00ff44;
-  color: #ff0099;
+  color: #c9057a;
+  text-shadow: 0 0 10px black;
 }
 
 .X,
@@ -103,14 +104,26 @@
   font-size: 40px;
 }
 
+.tie-game-light {
+  font-size: 40px;
+}
+
 .winning-message-darkX {
   font-size: 40px;
   color: #00ff44;
+  text-shadow: 0 0 2px #00ff44;
 }
 
 .winning-message-darkO {
   font-size: 40px;
   color: #ff0099;
+  text-shadow: 0 0 2px #ff0099;
+}
+
+.tie-game-dark {
+  font-size: 40px;
+  color: #ddd;
+  text-shadow: 0 0 2px #ddd;
 }
 
 .dark-mode-background {
@@ -136,8 +149,10 @@
 
 .X-dark {
   color: #00ff44;
+  text-shadow: 0 0 5px #00ff44;
 }
 
 .O-dark {
   color: #ff0099;
+  text-shadow: 0 0 5px #ff0099;
 }
