@@ -11,6 +11,7 @@ class Gameplay {
     this.turn = "X";
     this.game = "on";
     this.darkMode = "off";
+    this.winner = false;
     this.tie = false;
     this.one = document.querySelector("#one");
     this.two = document.querySelector("#two");
@@ -48,11 +49,15 @@ class Gameplay {
     } else if (this.turn === "X" && e.target.innerHTML === "") {
       e.target.innerHTML = this.X;
       this.checkEnd();
-      this.turn = "O";
+      if (this.game === "on") {
+        this.turn = "O";
+      }
     } else if (this.turn === "O" && e.target.innerHTML === "") {
       e.target.innerHTML = this.O;
       this.checkEnd();
-      this.turn = "X";
+      if (this.game === "on") {
+        this.turn = "X";
+      }
     }
   }
 
@@ -62,48 +67,56 @@ class Gameplay {
       this.oneLine.every((el) => el.innerHTML === this.O)
     ) {
       this.winningMessage.innerHTML = this.championMessage();
+      this.winner = true;
       this.game = "off";
     } else if (
       this.twoLine.every((el) => el.innerHTML === this.X) ||
       this.twoLine.every((el) => el.innerHTML === this.O)
     ) {
       this.winningMessage.innerHTML = this.championMessage();
+      this.winner = true;
       this.game = "off";
     } else if (
       this.threeLine.every((el) => el.innerHTML === this.X) ||
       this.threeLine.every((el) => el.innerHTML === this.O)
     ) {
       this.winningMessage.innerHTML = this.championMessage();
+      this.winner = true;
       this.game = "off";
     } else if (
       this.fourLine.every((el) => el.innerHTML === this.X) ||
       this.fourLine.every((el) => el.innerHTML === this.O)
     ) {
       this.winningMessage.innerHTML = this.championMessage();
+      this.winner = true;
       this.game = "off";
     } else if (
       this.fiveLine.every((el) => el.innerHTML === this.X) ||
       this.fiveLine.every((el) => el.innerHTML === this.O)
     ) {
       this.winningMessage.innerHTML = this.championMessage();
+      this.winner = true;
       this.game = "off";
     } else if (
       this.sixLine.every((el) => el.innerHTML === this.X) ||
       this.sixLine.every((el) => el.innerHTML === this.O)
     ) {
       this.winningMessage.innerHTML = this.championMessage();
+      this.winner = true;
       this.game = "off";
     } else if (
       this.sevenLine.every((el) => el.innerHTML === this.X) ||
       this.sevenLine.every((el) => el.innerHTML === this.O)
     ) {
       this.winningMessage.innerHTML = this.championMessage();
+      this.winner = true;
       this.game = "off";
     } else if (
       this.eightLine.every((el) => el.innerHTML === this.X) ||
       this.eightLine.every((el) => el.innerHTML === this.O)
     ) {
       this.winningMessage.innerHTML = this.championMessage();
+      this.winner = true;
       this.game = "off";
     } else if (
       this.catsGame.every(
@@ -120,10 +133,16 @@ class Gameplay {
       this.X = `<div class="X X-dark">X</div>`;
       this.O = `<div class="O O-dark">O</div>`;
       this.darkMode = "on";
+      if (this.winner) {
+        this.winningMessage.innerHTML = this.championMessage();
+      }
     } else if (e.target === this.darkModeOff) {
       this.X = `<div class="X">X</div>`;
       this.O = `<div class="O">O</div>`;
       this.darkMode = "off";
+      if (this.winner) {
+        this.winningMessage.innerHTML = this.championMessage();
+      }
     }
   }
 
@@ -148,6 +167,7 @@ class Gameplay {
     this.winningMessage.innerHTML = "";
     this.turn = "X";
     this.game = "on";
+    this.winner = false;
     this.tie = false;
   }
 }
