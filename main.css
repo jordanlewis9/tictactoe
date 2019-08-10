@@ -4,6 +4,33 @@
   padding: 0;
 }
 
+.player-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 30px;
+}
+
+.player-numbers {
+  visibility: none;
+  opacity: 0;
+}
+
+.label-span {
+  display: block;
+  margin-right: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid blue;
+  text-align: center;
+}
+
+.player-numbers:checked + .player-option-label .label-span {
+  background: green;
+}
+
 .dark-mode-container {
   display: flex;
   height: 20px;

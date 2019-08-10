@@ -11,6 +11,7 @@ class Gameplay {
     this.turn = "X";
     this.game = "on";
     this.darkMode = "off";
+    this.difficulty = "2p";
     this.winner = false;
     this.tie = false;
     this.one = document.querySelector("#one");
@@ -31,6 +32,7 @@ class Gameplay {
     this.sevenLine = [this.four, this.five, this.six];
     this.eightLine = [this.seven, this.eight, this.nine];
     this.catsGame = [...this.oneLine, ...this.sevenLine, ...this.eightLine];
+    this.options = document.querySelector(".player-options");
     this.events();
   }
 
@@ -41,22 +43,51 @@ class Gameplay {
       this.setDarkModeMarker.bind(this)
     );
     this.newGame.addEventListener("click", this.createNewGame.bind(this));
+    this.options.addEventListener("click", this.playerOptions.bind(this));
+  }
+
+  playerOptions(e) {
+    console.log(e.target.value);
+    if (e.target.value === "2p") {
+      this.difficulty = "2p";
+    } else if (e.target.value === "easy") {
+      this.difficulty = "easy";
+    }
   }
 
   addMove(e) {
     if (this.game === "off") {
       return "";
-    } else if (this.turn === "X" && e.target.innerHTML === "") {
+    } else if (
+      this.turn === "X" &&
+      e.target.innerHTML === "" &&
+      this.difficulty === "2p"
+    ) {
       e.target.innerHTML = this.X;
       this.checkEnd();
       if (this.game === "on") {
         this.turn = "O";
       }
-    } else if (this.turn === "O" && e.target.innerHTML === "") {
+    } else if (
+      this.turn === "O" &&
+      e.target.innerHTML === "" &&
+      this.difficulty === "2p"
+    ) {
       e.target.innerHTML = this.O;
       this.checkEnd();
       if (this.game === "on") {
         this.turn = "X";
+      }
+    } else if (
+      this.turn === "X" &&
+      e.target.innerHTML === "" &&
+      this.difficulty === "easy"
+    ) {
+      e.target.innerHTML = this.X;
+      this.checkEnd();
+      if (this.game === "on") {
+        this.turn = "O";
+        this.computerLevel();
       }
     }
   }
@@ -129,6 +160,7 @@ class Gameplay {
   }
 
   setDarkModeMarker(e) {
+    console.log(e.target);
     if (e.target === this.darkModeOn) {
       this.X = `<div class="X X-dark">X</div>`;
       this.O = `<div class="O O-dark">O</div>`;
@@ -159,6 +191,31 @@ class Gameplay {
       return `<p class="winning-message-darkX">X is the Champion!</p>`;
     } else if (this.turn === "O" && this.darkMode === "on") {
       return `<p class="winning-message-darkO">O is the Champion!</p>`;
+    }
+  }
+
+  computerRandomMove() {
+    let move = Math.floor(Math.random() * 9);
+    if (this.catsGame[move].innerHTML === "") {
+      this.winningMessage.innerHTML = "";
+      this.catsGame[move].innerHTML = this.O;
+      this.checkEnd();
+      if (this.game === "on") {
+        this.turn = "X";
+      }
+    } else {
+      this.computerRandomMove();
+    }
+  }
+
+  computerLevel() {
+    if (this.darkMode === "off" && this.turn === "O") {
+      this.winningMessage.innerHTML = `<p class='winning-message-light'>Thinking...</p>`;
+    } else if (this.darkMode === "on" && this.turn === "O") {
+      this.winningMessage.innerHTML = `<p class='winning-message-darkO'>Thinking...</p>`;
+    }
+    if (this.difficulty === "easy" && this.turn === "O" && this.game === "on") {
+      setTimeout(this.computerRandomMove.bind(this), 1000);
     }
   }
 
