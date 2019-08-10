@@ -12,6 +12,7 @@ class Gameplay {
     this.game = "on";
     this.darkMode = "off";
     this.difficulty = "2p";
+    this.turnNum = 1;
     this.winner = false;
     this.tie = false;
     this.one = document.querySelector("#one");
@@ -52,6 +53,8 @@ class Gameplay {
       this.difficulty = "2p";
     } else if (e.target.value === "easy") {
       this.difficulty = "easy";
+    } else if (e.target.value === "challenge") {
+      this.difficulty = "challenge";
     }
   }
 
@@ -67,6 +70,7 @@ class Gameplay {
       this.checkEnd();
       if (this.game === "on") {
         this.turn = "O";
+        this.turnNum++;
       }
     } else if (
       this.turn === "O" &&
@@ -77,6 +81,7 @@ class Gameplay {
       this.checkEnd();
       if (this.game === "on") {
         this.turn = "X";
+        this.turnNum++;
       }
     } else if (
       this.turn === "X" &&
@@ -87,6 +92,19 @@ class Gameplay {
       this.checkEnd();
       if (this.game === "on") {
         this.turn = "O";
+        this.turnNum++;
+        this.computerLevel();
+      }
+    } else if (
+      this.turn === "X" &&
+      e.target.innerHTML === "" &&
+      this.difficulty === "challenge"
+    ) {
+      e.target.innerHTML = this.X;
+      this.checkEnd();
+      if (this.game === "on") {
+        this.turn = "O";
+        this.turnNum++;
         this.computerLevel();
       }
     }
@@ -194,7 +212,7 @@ class Gameplay {
     }
   }
 
-  computerRandomMove() {
+  computerEasyMove() {
     let move = Math.floor(Math.random() * 9);
     if (this.catsGame[move].innerHTML === "") {
       this.winningMessage.innerHTML = "";
@@ -202,9 +220,230 @@ class Gameplay {
       this.checkEnd();
       if (this.game === "on") {
         this.turn = "X";
+        this.turnNum++;
       }
     } else {
-      this.computerRandomMove();
+      this.computerEasyMove();
+    }
+  }
+
+  computerChallengeMove() {
+    let mistake = Math.ceil(Math.random() * 100);
+    if (mistake > 98) {
+      console.log("Brainfart");
+      this.computerEasyMove();
+    } else {
+      console.log(this.turnNum);
+      if (this.turnNum === 2) {
+        if (this.five.innerHTML === "") {
+          this.five.innerHTML = this.O;
+          this.winningMessage.innerHTML = "";
+          this.turn = "X";
+          this.turnNum++;
+        } else {
+          let firstMove = Math.ceil(Math.random() * 4);
+          console.log(firstMove);
+          if (firstMove === 1) {
+            this.one.innerHTML = this.O;
+            this.winningMessage.innerHTML = "";
+            this.turn = "X";
+            this.turnNum++;
+          } else if (firstMove === 2) {
+            this.three.innerHTML = this.O;
+            this.winningMessage.innerHTML = "";
+            this.turn = "X";
+            this.turnNum++;
+          } else if (firstMove === 3) {
+            this.seven.innerHTML = this.O;
+            this.winningMessage.innerHTML = "";
+            this.turn = "X";
+            this.turnNum++;
+          } else {
+            this.nine.innerHTML = this.O;
+            this.winningMessage.innerHTML = "";
+            this.turn = "X";
+            this.turnNum++;
+          }
+        }
+      } else if (this.turnNum === 4) {
+        const oneLineXCt = this.oneLine.filter((el) => el.innerHTML === this.X);
+        const twoLineXCt = this.twoLine.filter((el) => el.innerHTML === this.X);
+        const threeLineXCt = this.threeLine.filter(
+          (el) => el.innerHTML === this.X
+        );
+        const fourLineXCt = this.fourLine.filter(
+          (el) => el.innerHTML === this.X
+        );
+        const fiveLineXCt = this.fiveLine.filter(
+          (el) => el.innerHTML === this.X
+        );
+        const sixLineXCt = this.sixLine.filter((el) => el.innerHTML === this.X);
+        const sevenLineXCt = this.sevenLine.filter(
+          (el) => el.innerHTML === this.X
+        );
+        const eightLineXCt = this.eightLine.filter(
+          (el) => el.innerHTML === this.X
+        );
+        if (oneLineXCt.length === 2 || oneLineXCt.length === 3) {
+          let oneLineMove = this.oneLine.filter((el) => el.innerHTML === "");
+          if (oneLineMove.length === 1) {
+            oneLineMove[0].innerHTML = this.O;
+            this.winningMessage.innerHTML = "";
+            this.turn = "X";
+            this.turnNum++;
+          } else {
+            this.five.innerHTML = this.O;
+            this.winningMessage.innerHTML = "";
+            this.turn = "X";
+            this.turnNum++;
+          }
+        } else if (twoLineXCt.length === 2 || twoLineXCt.length === 3) {
+          let twoLineMove = this.twoLine.filter((el) => el.innerHTML === "");
+          if (twoLineMove.length === 1) {
+            twoLineMove[0].innerHTML = this.O;
+            this.winningMessage.innerHTML = "";
+            this.turn = "X";
+            this.turnNum++;
+          } else {
+            this.five.innerHTML = this.O;
+            this.winningMessage.innerHTML = "";
+            this.turn = "X";
+            this.turnNum++;
+          }
+        } else if (threeLineXCt.length === 2 || threeLineXCt.length === 3) {
+          let threeLineMove = this.threeLine.filter(
+            (el) => el.innerHTML === ""
+          );
+          if (threeLineMove.length === 1) {
+            threeLineMove[0].innerHTML = this.O;
+            this.winningMessage.innerHTML = "";
+            this.turn = "X";
+            this.turnNum++;
+          } else {
+            if (this.five.innerHTML === this.O) {
+              let indifferent = Math.ceil(Math.random() * 4);
+              if (indifferent === 1) {
+                this.two.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              } else if (indifferent === 2) {
+                this.four.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              } else if (indifferent === 3) {
+                this.six.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              } else {
+                this.eight.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              }
+            } else if (this.oneLine.innerHTML === this.O) {
+              let threeOrSeven = Math.ceil(Math.random() * 2);
+              if (threeOrSeven === 1) {
+                this.three.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              } else {
+                this.seven.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              }
+            } else {
+              let threeOrSeven = Math.ceil(Math.random() * 2);
+              if (threeOrSeven === 1) {
+                this.three.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              } else {
+                this.seven.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              }
+            }
+          }
+        } else if (fourLineXCt.length === 2 || fourLineXCt.length === 3) {
+          let fourLineMove = this.fourLine.filter((el) => el.innerHTML === "");
+          if (fourLineMove.length === 1) {
+            if (this.two.innerHTML === "") {
+              this.two.innerHTML = this.O;
+              this.winningMessage.innerHTML = "";
+              this.turn = "X";
+              this.turnNum++;
+            } else if (this.eight.innerHTML === "") {
+              this.eight.innerHTML = this.O;
+              this.winningMessage.innerHTML = "";
+              this.turn = "X";
+              this.turnNum++;
+            } else {
+              this.five.innerHTML = this.O;
+              this.winningMessage.innerHTML = "";
+              this.turn = "X";
+              this.turnNum++;
+            }
+          } else {
+            if (this.five.innerHTML === this.O) {
+              let indifferentWin = Math.ceil(Math.random() * 4);
+              if (indifferentWin === 1) {
+                this.one.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              } else if (indifferentWin === 2) {
+                this.three.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              } else if (indifferentWin === 3) {
+                this.seven.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              } else if (indifferentWin === 4) {
+                this.nine.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              }
+            } else if (this.two.innerHTML === this.O) {
+              let sevenOrNine = Math.ceil(Math.random() * 2);
+              if (sevenOrNine === 1) {
+                this.seven.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              } else {
+                this.nine.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              }
+            } else {
+              let oneOrThree = Math.ceil(Math.random() * 2);
+              if (oneOrThree === 1) {
+                this.one.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              } else {
+                this.three.innerHTML = this.O;
+                this.winningMessage.innerHTML = "";
+                this.turn = "X";
+                this.turnNum++;
+              }
+            }
+          }
+        }
+      }
     }
   }
 
@@ -215,7 +454,13 @@ class Gameplay {
       this.winningMessage.innerHTML = `<p class='winning-message-darkO'>Thinking...</p>`;
     }
     if (this.difficulty === "easy" && this.turn === "O" && this.game === "on") {
-      setTimeout(this.computerRandomMove.bind(this), 1000);
+      setTimeout(this.computerEasyMove.bind(this), 1000);
+    } else if (
+      this.difficulty === "challenge" &&
+      this.turn === "O" &&
+      this.game === "on"
+    ) {
+      setTimeout(this.computerChallengeMove.bind(this), 1000);
     }
   }
 
@@ -224,6 +469,7 @@ class Gameplay {
     this.winningMessage.innerHTML = "";
     this.turn = "X";
     this.game = "on";
+    this.turnNum = 1;
     this.winner = false;
     this.tie = false;
   }
