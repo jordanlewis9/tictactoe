@@ -19,16 +19,19 @@
 
 .label-span {
   display: block;
-  margin-right: none;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 3px solid blue;
+  border: 3px solid #00ff44;
   text-align: center;
 }
 
+.player-option-label-dark {
+  color: #ddd;
+}
+
 .player-numbers:checked + .player-option-label .label-span {
-  background: green;
+  background: #ff0099;
 }
 
 .dark-mode-container {

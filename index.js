@@ -37,6 +37,7 @@ class Gameplay {
     this.events();
   }
 
+  // Event listeners
   events() {
     this.container.addEventListener("click", this.addMove.bind(this));
     this.darkModeContainer.addEventListener(
@@ -47,17 +48,21 @@ class Gameplay {
     this.options.addEventListener("click", this.playerOptions.bind(this));
   }
 
+  // Difficulty level
   playerOptions(e) {
     this.createNewGame();
     if (e.target.value === "2p") {
       this.difficulty = "2p";
     } else if (e.target.value === "easy") {
       this.difficulty = "easy";
+    } else if (e.target.value === "medium"){
+      this.difficulty = "medium";
     } else if (e.target.value === "challenge") {
       this.difficulty = "challenge";
     }
   }
 
+  // Main move mechanic
   addMove(e) {
     if (this.game === "off") {
       return "";
@@ -86,19 +91,7 @@ class Gameplay {
     } else if (
       this.turn === "X" &&
       e.target.innerHTML === "" &&
-      this.difficulty === "easy"
-    ) {
-      e.target.innerHTML = this.X;
-      this.checkEnd();
-      if (this.game === "on") {
-        this.turn = "O";
-        this.turnNum++;
-        this.computerLevel();
-      }
-    } else if (
-      this.turn === "X" &&
-      e.target.innerHTML === "" &&
-      this.difficulty === "challenge"
+      this.difficulty !== "2p"
     ) {
       e.target.innerHTML = this.X;
       this.checkEnd();
@@ -110,6 +103,7 @@ class Gameplay {
     }
   }
 
+  // See if the current player has won with their move, or if the game is a tie
   checkEnd() {
     if (
       this.oneLine.every((el) => el.innerHTML === this.X) ||
@@ -173,29 +167,31 @@ class Gameplay {
       )
     ) {
       this.tie = true;
+      this.game = "off";
       this.winningMessage.innerHTML = this.championMessage();
     }
   }
 
+  // Toggles dark mode for all non-static elements
   setDarkModeMarker(e) {
-    console.log(e.target);
     if (e.target === this.darkModeOn) {
       this.X = `<div class="X X-dark">X</div>`;
       this.O = `<div class="O O-dark">O</div>`;
       this.darkMode = "on";
-      if (this.winner) {
+      if (this.winner || this.tie) {
         this.winningMessage.innerHTML = this.championMessage();
       }
     } else if (e.target === this.darkModeOff) {
       this.X = `<div class="X">X</div>`;
       this.O = `<div class="O">O</div>`;
       this.darkMode = "off";
-      if (this.winner) {
+      if (this.winner || this.tie) {
         this.winningMessage.innerHTML = this.championMessage();
       }
     }
   }
 
+  // Text below board to display the winner, or show the computer is "thinking"
   championMessage() {
     if (this.darkMode === "off" && this.tie) {
       return `<p class="tie-game-light">Game is a tie.</p>`;
@@ -220,31 +216,32 @@ class Gameplay {
     } else if (
       this.turn === "O" &&
       this.darkMode === "off" &&
-      (this.difficulty === "easy" || this.difficulty === "challenge")
+      this.difficulty !== "2p"
     ) {
       return `<p class="winning-message-light">The Computer is the Champion!</p>`;
     } else if (
       this.turn === "O" &&
       this.darkMode === "on" &&
-      (this.difficulty === "easy" || this.difficulty === "challenge")
+      this.difficulty !== "2p"
     ) {
       return `<p class="winning-message-darkO">The Computer is the Champion!</p>`;
     } else if (
       this.turn === "X" &&
       this.darkMode === "off" &&
-      (this.difficulty === "easy" || this.difficulty === "challenge")
+      this.difficulty !== "2p"
     ) {
       return `<p class="winning-message-light">You beat the computer!</p>`;
     } else if (
       this.turn === "X" &&
       this.darkMode === "on" &&
-      (this.difficulty === "easy" || this.difficulty === "challenge")
+      this.difficulty !== "2p"
     ) {
       return `<p class="winning-message-darkX">You beat the computer!</p>`;
     }
   }
 
-  computerEasyMove() {
+  // If random number is in range, go to this, which randomly places an O instead of strategically
+  computerMistakeMove() {
     let move = Math.floor(Math.random() * 9);
     if (this.catsGame[move].innerHTML === "") {
       this.winningMessage.innerHTML = "";
@@ -255,49 +252,39 @@ class Gameplay {
         this.turnNum++;
       }
     } else {
-      this.computerEasyMove();
+      this.computerMistakeMove();
     }
   }
 
-  computerChallengeMove() {
+  // The holy grail, the strategy behind the computer moves
+  computerMove() {
     // Mistake, to give humans a chance at winning
     let mistake = Math.ceil(Math.random() * 100);
-    if (mistake > 98) {
-      console.log("Brainfart");
-      this.computerEasyMove();
+    if (mistake > 98 && this.difficulty === "challenge") {
+      this.computerMistakeMove();
+      console.log("Brainfart, take advantage!");
+    } else if (mistake > 60 && this.difficulty === "medium"){
+      this.computerMistakeMove();
+      console.log("Ok, this is getting interesting.")
+    } else if (mistake > 20 && this.difficulty === "easy"){
+      this.computerMistakeMove();
+      console.log("You wanted easy, what did you expect?")
     } else {
       // If no mistake for this turn
-      console.log(this.turnNum);
       if (this.turnNum === 2) {
         // Challenge computer first move
         if (this.five.innerHTML === "") {
-          this.five.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.fiveSqCompMove();
         } else {
           let firstMove = Math.ceil(Math.random() * 4);
-          console.log(firstMove);
           if (firstMove === 1) {
-            this.one.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.oneSqCompMove();
           } else if (firstMove === 2) {
-            this.three.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.threeSqCompMove();
           } else if (firstMove === 3) {
-            this.seven.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.sevenSqCompMove();
           } else {
-            this.nine.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.nineSqCompMove();
           }
         }
       } else if (this.turnNum === 4) {
@@ -324,27 +311,17 @@ class Gameplay {
           let oneLineMove = this.oneLine.filter((el) => el.innerHTML === "");
           if (oneLineMove.length === 1) {
             oneLineMove[0].innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.compStatusChange();
           } else {
-            this.five.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.fiveSqCompMove();
           }
         } else if (twoLineXCt.length === 2 || twoLineXCt.length === 3) {
           let twoLineMove = this.twoLine.filter((el) => el.innerHTML === "");
           if (twoLineMove.length === 1) {
             twoLineMove[0].innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.compStatusChange();
           } else {
-            this.five.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.fiveSqCompMove();
           }
         } else if (threeLineXCt.length === 2 || threeLineXCt.length === 3) {
           let threeLineMove = this.threeLine.filter(
@@ -352,32 +329,18 @@ class Gameplay {
           );
           if (threeLineMove.length === 1) {
             threeLineMove[0].innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.compStatusChange();
           } else {
             if (this.five.innerHTML === this.O) {
               let indifferent = Math.ceil(Math.random() * 4);
               if (indifferent === 1) {
-                this.two.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.twoSqCompMove();
               } else if (indifferent === 2) {
-                this.four.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.fourSqCompMove();
               } else if (indifferent === 3) {
-                this.six.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.sixSqCompMove();
               } else {
-                this.eight.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.eightSqCompMove();
               }
             } else if (
               this.one.innerHTML === this.O ||
@@ -385,15 +348,9 @@ class Gameplay {
             ) {
               let threeOrSeven = Math.ceil(Math.random() * 2);
               if (threeOrSeven === 1) {
-                this.three.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.threeSqCompMove();
               } else {
-                this.seven.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.sevenSqCompMove();
               }
             }
           }
@@ -401,70 +358,37 @@ class Gameplay {
           let fourLineMove = this.fourLine.filter((el) => el.innerHTML === "");
           if (fourLineMove.length === 1) {
             if (this.two.innerHTML === "") {
-              this.two.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.twoSqCompMove();
             } else if (this.eight.innerHTML === "") {
-              this.eight.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.eightSqCompMove();
             } else {
-              this.five.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.fiveSqCompMove();
             }
           } else {
             if (this.five.innerHTML === this.O) {
               let indifferentWin = Math.ceil(Math.random() * 4);
               if (indifferentWin === 1) {
-                this.one.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.oneSqCompMove();
               } else if (indifferentWin === 2) {
-                this.three.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.threeSqCompMove();
               } else if (indifferentWin === 3) {
-                this.seven.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.sevenSqCompMove();
               } else if (indifferentWin === 4) {
-                this.nine.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.nineSqCompMove();
               }
             } else if (this.two.innerHTML === this.O) {
               let sevenOrNine = Math.ceil(Math.random() * 2);
               if (sevenOrNine === 1) {
-                this.seven.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.sevenSqCompMove();
               } else {
-                this.nine.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.nineSqCompMove();
               }
             } else {
               let oneOrThree = Math.ceil(Math.random() * 2);
               if (oneOrThree === 1) {
-                this.one.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.oneSqCompMove();
               } else {
-                this.three.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.threeSqCompMove();
               }
             }
           }
@@ -472,45 +396,26 @@ class Gameplay {
           let fiveLineMove = this.fiveLine.filter((el) => el.innerHTML === "");
           if (fiveLineMove.length === 1) {
             fiveLineMove[0].innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.compStatusChange();
           } else {
-            this.five.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.fiveSqCompMove();
           }
         } else if (sixLineXCt.length === 2 || sixLineXCt.length === 3) {
           let sixLineMove = this.sixLine.filter((el) => el.innerHTML === "");
           if (sixLineMove.length === 1) {
             sixLineMove[0].innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.compStatusChange();
           } else {
             if (this.five.innerHTML === this.O) {
               let indifferent = Math.ceil(Math.random() * 4);
               if (indifferent === 1) {
-                this.two.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.twoSqCompMove();
               } else if (indifferent === 2) {
-                this.four.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.fourSqCompMove();
               } else if (indifferent === 3) {
-                this.six.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.sixSqCompMove();
               } else {
-                this.eight.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.eightSqCompMove();
               }
             } else if (
               this.three.innerHTML === this.O ||
@@ -518,15 +423,9 @@ class Gameplay {
             ) {
               let oneOrNine = Math.ceil(Math.random() * 2);
               if (oneOrNine === 1) {
-                this.one.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.oneSqCompMove();
               } else {
-                this.nine.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.nineSqCompMove();
               }
             }
           }
@@ -536,70 +435,37 @@ class Gameplay {
           );
           if (sevenLineMove.length === 1) {
             if (this.four.innerHTML === "") {
-              this.four.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.fourSqCompMove();
             } else if (this.six.innerHTML === "") {
-              this.six.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sixSqCompMove();
             } else {
-              this.five.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.fiveSqCompMove();
             }
           } else {
             if (this.five.innerHTML === this.O) {
               let indifferentWin = Math.ceil(Math.random() * 4);
               if (indifferentWin === 1) {
-                this.one.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.oneSqCompMove();
               } else if (indifferentWin === 2) {
-                this.three.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.threeSqCompMove();
               } else if (indifferentWin === 3) {
-                this.seven.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.sevenSqCompMove();
               } else if (indifferentWin === 4) {
-                this.nine.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.nineSqCompMove();
               }
             } else if (this.four.innerHTML === this.O) {
               let threeOrNine = Math.ceil(Math.random() * 2);
               if (threeOrNine === 1) {
-                this.three.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.threeSqCompMove();
               } else {
-                this.nine.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.nineSqCompMove();
               }
             } else {
               let oneOrSeven = Math.ceil(Math.random() * 2);
               if (oneOrSeven === 1) {
-                this.one.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.oneSqCompMove();
               } else {
-                this.seven.innerHTML = this.O;
-                this.winningMessage.innerHTML = "";
-                this.turn = "X";
-                this.turnNum++;
+                this.sevenSqCompMove();
               }
             }
           }
@@ -609,14 +475,9 @@ class Gameplay {
           );
           if (eightLineMove.length === 1) {
             eightLineMove[0].innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.compStatusChange();
           } else {
-            this.five.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.fiveSqCompMove();
           }
           // Weird edge cases where none of the three winning lines have two of the same markers
         } else if (
@@ -626,20 +487,11 @@ class Gameplay {
           if (this.four.innerHTML === this.X) {
             let indifferent = Math.ceil(Math.random() * 3);
             if (indifferent === 1) {
-              this.one.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.oneSqCompMove();
             } else if (indifferent === 2) {
-              this.three.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.threeSqCompMove();
             } else {
-              this.seven.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sevenSqCompMove();
             }
           } else if (
             this.seven.innerHTML === this.X ||
@@ -647,43 +499,22 @@ class Gameplay {
           ) {
             let indifferent = Math.ceil(Math.random() * 4);
             if (indifferent === 1) {
-              this.one.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.oneSqCompMove();
             } else if (indifferent === 2) {
-              this.three.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.threeSqCompMove();
             } else if (indifferent === 3) {
-              this.four.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.fourSqCompMove();
             } else {
-              this.six.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sixSqCompMove();
             }
           } else if (this.six.innerHTML === this.X) {
             let indifferent = Math.ceil(Math.random() * 3);
             if (indifferent === 1) {
-              this.one.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.oneSqCompMove();
             } else if (indifferent === 2) {
-              this.three.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.threeSqCompMove();
             } else {
-              this.nine.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.nineSqCompMove();
             }
           }
         } else if (
@@ -693,20 +524,11 @@ class Gameplay {
           if (this.two.innerHTML === this.X) {
             let indifferent = Math.ceil(Math.random() * 3);
             if (indifferent === 1) {
-              this.one.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.oneSqCompMove();
             } else if (indifferent === 2) {
-              this.three.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.threeSqCompMove();
             } else {
-              this.seven.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sevenSqCompMove();
             }
           } else if (
             this.three.innerHTML === this.X ||
@@ -714,43 +536,22 @@ class Gameplay {
           ) {
             let indifferent = Math.ceil(Math.random() * 4);
             if (indifferent === 1) {
-              this.one.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.oneSqCompMove();
             } else if (indifferent === 2) {
-              this.two.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.twoSqCompMove();
             } else if (indifferent === 3) {
-              this.seven.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sevenSqCompMove();
             } else {
-              this.eight.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.eightSqCompMove();
             }
           } else if (this.eight.innerHTML === this.X) {
             let indifferent = Math.ceil(Math.random() * 3);
             if (indifferent === 1) {
-              this.one.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.oneSqCompMove();
             } else if (indifferent === 2) {
-              this.seven.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sevenSqCompMove();
             } else {
-              this.nine.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.nineSqCompMove();
             }
           }
         } else if (
@@ -760,20 +561,11 @@ class Gameplay {
           if (this.four.innerHTML === this.X) {
             let indifferent = Math.ceil(Math.random() * 3);
             if (indifferent === 1) {
-              this.one.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.oneSqCompMove();
             } else if (indifferent === 2) {
-              this.seven.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sevenSqCompMove();
             } else {
-              this.nine.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.nineSqCompMove();
             }
           } else if (
             this.one.innerHTML === this.X ||
@@ -781,43 +573,22 @@ class Gameplay {
           ) {
             let indifferent = Math.ceil(Math.random() * 4);
             if (indifferent === 1) {
-              this.four.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.fourSqCompMove();
             } else if (indifferent === 2) {
-              this.six.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sixSqCompMove();
             } else if (indifferent === 3) {
-              this.seven.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sevenSqCompMove();
             } else {
-              this.nine.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.nineSqCompMove();
             }
           } else if (this.six.innerHTML === this.X) {
             let indifferent = Math.ceil(Math.random() * 3);
             if (indifferent === 1) {
-              this.three.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.threeSqCompMove();
             } else if (indifferent === 2) {
-              this.seven.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sevenSqCompMove();
             } else {
-              this.nine.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.nineSqCompMove();
             }
           }
         } else if (
@@ -827,20 +598,11 @@ class Gameplay {
           if (this.two.innerHTML === this.X) {
             let indifferent = Math.ceil(Math.random() * 3);
             if (indifferent === 1) {
-              this.one.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.oneSqCompMove();
             } else if (indifferent === 2) {
-              this.three.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.threeSqCompMove();
             } else {
-              this.nine.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.nineSqCompMove();
             }
           } else if (
             this.one.innerHTML === this.X ||
@@ -848,43 +610,22 @@ class Gameplay {
           ) {
             let indifferent = Math.ceil(Math.random() * 4);
             if (indifferent === 1) {
-              this.two.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.twoSqCompMove();
             } else if (indifferent === 2) {
-              this.three.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.threeSqCompMove();
             } else if (indifferent === 3) {
-              this.eight.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.eightSqCompMove();
             } else {
-              this.nine.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.nineSqCompMove();
             }
           } else if (this.eight.innerHTML === this.X) {
             let indifferent = Math.ceil(Math.random() * 3);
             if (indifferent === 1) {
-              this.three.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.threeSqCompMove();
             } else if (indifferent === 2) {
-              this.seven.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sevenSqCompMove();
             } else {
-              this.nine.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.nineSqCompMove();
             }
           }
         } else if (
@@ -892,22 +633,13 @@ class Gameplay {
           this.two.innerHTML === this.O
         ) {
           if (this.six.innerHTML === this.X || this.four.innerHTML === this.X) {
-            this.five.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.fiveSqCompMove();
           } else {
             let indifferent = Math.ceil(Math.random() * 2);
             if (indifferent === 1) {
-              this.seven.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sevenSqCompMove();
             } else {
-              this.nine.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.nineSqCompMove();
             }
           }
         } else if (
@@ -918,22 +650,13 @@ class Gameplay {
             this.two.innerHTML === this.X ||
             this.eight.innerHTML === this.X
           ) {
-            this.five.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.fiveSqCompMove();
           } else {
             let indifferent = Math.ceil(Math.random() * 2);
             if (indifferent === 1) {
-              this.three.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.threeSqCompMove();
             } else {
-              this.nine.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.nineSqCompMove();
             }
           }
         } else if (
@@ -941,22 +664,13 @@ class Gameplay {
           this.eight.innerHTML === this.O
         ) {
           if (this.four.innerHTML === this.X || this.six.innerHTML === this.X) {
-            this.five.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.fiveSqCompMove();
           } else {
             let indifferent = Math.ceil(Math.random() * 2);
             if (indifferent === 1) {
-              this.one.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.oneSqCompMove();
             } else {
-              this.three.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.threeSqCompMove();
             }
           }
         } else if (
@@ -967,22 +681,13 @@ class Gameplay {
             this.two.innerHTML === this.X ||
             this.eight.innerHTML === this.X
           ) {
-            this.five.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.fiveSqCompMove();
           } else {
             let indifferent = Math.ceil(Math.random() * 2);
             if (indifferent === 1) {
-              this.one.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.oneSqCompMove();
             } else {
-              this.seven.innerHTML = this.O;
-              this.winningMessage.innerHTML = "";
-              this.turn = "X";
-              this.turnNum++;
+              this.sevenSqCompMove();
             }
           }
         }
@@ -1062,61 +767,45 @@ class Gameplay {
         } else if (oneLineXCt.length === 2 && oneLineOCt.length === 0) {
           const blockingMove = this.oneLine.filter((el) => el.innerHTML === "");
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (twoLineXCt.length === 2 && twoLineOCt.length === 0) {
           const blockingMove = this.twoLine.filter((el) => el.innerHTML === "");
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (threeLineXCt.length === 2 && threeLineOCt.length === 0) {
           const blockingMove = this.threeLine.filter(
             (el) => el.innerHTML === ""
           );
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (fourLineXCt.length === 2 && fourLineOCt.length === 0) {
           const blockingMove = this.fourLine.filter(
             (el) => el.innerHTML === ""
           );
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (fiveLineXCt.length === 2 && fiveLineOCt.length === 0) {
           const blockingMove = this.fiveLine.filter(
             (el) => el.innerHTML === ""
           );
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (sixLineXCt.length === 2 && sixLineOCt.length === 0) {
           const blockingMove = this.sixLine.filter((el) => el.innerHTML === "");
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (sevenLineXCt.length === 2 && sevenLineOCt.length === 0) {
           const blockingMove = this.sevenLine.filter(
             (el) => el.innerHTML === ""
           );
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (eightLineXCt.length === 2 && eightLineOCt.length === 0) {
           const blockingMove = this.eightLine.filter(
             (el) => el.innerHTML === ""
           );
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
           // Start edge cases
         } else if (
           this.two.innerHTML === this.O &&
@@ -1127,15 +816,9 @@ class Gameplay {
         ) {
           let indifferent = Math.ceil(Math.random() * 2);
           if (indifferent === 1) {
-            this.one.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.oneSqCompMove();
           } else {
-            this.four.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.fourSqCompMove();
           }
         } else if (
           this.one.innerHTML === this.X &&
@@ -1146,15 +829,9 @@ class Gameplay {
         ) {
           let indifferent = Math.ceil(Math.random() * 2);
           if (indifferent === 1) {
-            this.seven.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.sevenSqCompMove();
           } else {
-            this.eight.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.eightSqCompMove();
           }
         } else if (
           this.two.innerHTML === this.X &&
@@ -1165,15 +842,9 @@ class Gameplay {
         ) {
           let indifferent = Math.ceil(Math.random() * 2);
           if (indifferent === 1) {
-            this.six.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.sixSqCompMove();
           } else {
-            this.nine.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.nineSqCompMove();
           }
         } else if (
           this.one.innerHTML === this.O &&
@@ -1184,15 +855,9 @@ class Gameplay {
         ) {
           let indifferent = Math.ceil(Math.random() * 2);
           if (indifferent === 1) {
-            this.two.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.twoSqCompMove();
           } else {
-            this.three.innerHTML = this.O;
-            this.winningMessage.innerHTML = "";
-            this.turn = "X";
-            this.turnNum++;
+            this.threeSqCompMove();
           }
           // Will win for CPU if no brainfart
         } else if (
@@ -1202,10 +867,7 @@ class Gameplay {
           this.six.innerHTML === this.X &&
           this.nine.innerHTML === this.O
         ) {
-          this.seven.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.sevenSqCompMove();
         } else if (
           this.one.innerHTML === this.O &&
           this.two.innerHTML === this.X &&
@@ -1213,10 +875,7 @@ class Gameplay {
           this.four.innerHTML === this.X &&
           this.seven.innerHTML === this.X
         ) {
-          this.nine.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.nineSqCompMove();
         } else if (
           this.one.innerHTML === this.O &&
           this.four.innerHTML === this.X &&
@@ -1224,10 +883,7 @@ class Gameplay {
           this.eight.innerHTML === this.X &&
           this.nine.innerHTML === this.X
         ) {
-          this.three.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.threeSqCompMove();
         } else if (
           this.three.innerHTML === this.X &&
           this.six.innerHTML === this.X &&
@@ -1235,10 +891,7 @@ class Gameplay {
           this.eight.innerHTML === this.X &&
           this.nine.innerHTML === this.O
         ) {
-          this.one.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.oneSqCompMove();
         } else if (
           this.one.innerHTML === this.X &&
           this.two.innerHTML === this.X &&
@@ -1246,10 +899,7 @@ class Gameplay {
           this.four.innerHTML === this.O &&
           this.seven.innerHTML === this.X
         ) {
-          this.six.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.sixSqCompMove();
         } else if (
           this.one.innerHTML === this.O &&
           this.four.innerHTML === this.X &&
@@ -1257,10 +907,7 @@ class Gameplay {
           this.eight.innerHTML === this.O &&
           this.nine.innerHTML === this.X
         ) {
-          this.two.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.twoSqCompMove();
         } else if (
           this.three.innerHTML === this.X &&
           this.six.innerHTML === this.O &&
@@ -1268,10 +915,7 @@ class Gameplay {
           this.eight.innerHTML === this.X &&
           this.nine.innerHTML === this.X
         ) {
-          this.four.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.fourSqCompMove();
         } else if (
           this.one.innerHTML === this.X &&
           this.two.innerHTML === this.O &&
@@ -1279,10 +923,7 @@ class Gameplay {
           this.six.innerHTML === this.X &&
           this.nine.innerHTML === this.O
         ) {
-          this.eight.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.eightSqCompMove();
         } else if (
           this.two.innerHTML === this.X &&
           this.four.innerHTML === this.X &&
@@ -1290,10 +931,7 @@ class Gameplay {
           this.six.innerHTML === this.O &&
           this.eight.innerHTML === this.O
         ) {
-          this.nine.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.nineSqCompMove();
         } else if (
           this.two.innerHTML === this.X &&
           this.four.innerHTML === this.O &&
@@ -1301,10 +939,7 @@ class Gameplay {
           this.six.innerHTML === this.X &&
           this.eight.innerHTML === this.O
         ) {
-          this.seven.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.sevenSqCompMove();
         } else if (
           this.two.innerHTML === this.O &&
           this.four.innerHTML === this.O &&
@@ -1312,10 +947,7 @@ class Gameplay {
           this.six.innerHTML === this.X &&
           this.eight.innerHTML === this.X
         ) {
-          this.one.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.oneSqCompMove();
         } else if (
           this.two.innerHTML === this.O &&
           this.four.innerHTML === this.X &&
@@ -1323,16 +955,38 @@ class Gameplay {
           this.six.innerHTML === this.O &&
           this.eight.innerHTML === this.X
         ) {
-          this.three.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
-          // In every other scenario, five has to be open and it's the best move
+          this.threeSqCompMove();
+        } else if(this.one.innerHTML === this.X && this.two.innerHTML === this.O && this.three.innerHTML === this.X && this.five.innerHTML === this.O && this.eight.innerHTML === this.X){
+          let indifferent = Math.ceil(Math.round() * 2);
+          if(indifferent === 1){
+            this.fourSqCompMove();
+          } else {
+            this.sixSqCompMove();
+          }
+        } else if (this.one.innerHTML === this.X && this.four.innerHTML === this.O && this.five.innerHTML === this.O && this.six.innerHTML === this.X && this.seven.innerHTML === this.X){
+          let indifferent = Math.ceil(Math.round() * 2);
+          if(indifferent === 1){
+            this.twoSqCompMove();
+          } else {
+            this.eightSqCompMove();
+          }
+        } else if (this.two.innerHTML === this.X && this.five.innerHTML === this.O && this.seven.innerHTML === this.X && this.eight.innerHTML === this.O && this.nine.innerHTML === this.X){
+          let indifferent = Math.ceil(Math.round() * 2);
+          if(indifferent === 1){
+            this.fourSqCompMove();
+          } else {
+            this.sixSqCompMove();
+          }
+        } else if (this.three.innerHTML === this.X && this.four.innerHTML === this.X && this.five.innerHTML === this.O && this.six.innerHTML === this.O && this.nine.innerHTML === this.X){
+          let indifferent = Math.ceil(Math.round() * 2);
+          if(indifferent === 1){
+            this.twoSqCompMove();
+          } else {
+            this.eightSqCompMove();
+          }
+          // All other scenarios have middle square open, and is the best move
         } else {
-          this.five.innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.fiveSqCompMove();
         }
         // Final Move. If CPU can't win, block. If neither, the move does not matter
         // If human has two potential wins, only first will be caught and blocked. Difficult to calculate
@@ -1413,91 +1067,121 @@ class Gameplay {
         } else if (oneLineXCt.length === 2 && oneLineOCt.length === 0) {
           const blockingMove = this.oneLine.filter((el) => el.innerHTML === "");
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (twoLineXCt.length === 2 && twoLineOCt.length === 0) {
           const blockingMove = this.twoLine.filter((el) => el.innerHTML === "");
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (threeLineXCt.length === 2 && threeLineOCt.length === 0) {
           const blockingMove = this.threeLine.filter(
             (el) => el.innerHTML === ""
           );
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (fourLineXCt.length === 2 && fourLineOCt.length === 0) {
           const blockingMove = this.fourLine.filter(
             (el) => el.innerHTML === ""
           );
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (fiveLineXCt.length === 2 && fiveLineOCt.length === 0) {
           const blockingMove = this.fiveLine.filter(
             (el) => el.innerHTML === ""
           );
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (sixLineXCt.length === 2 && sixLineOCt.length === 0) {
           const blockingMove = this.sixLine.filter((el) => el.innerHTML === "");
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (sevenLineXCt.length === 2 && sevenLineOCt.length === 0) {
           const blockingMove = this.sevenLine.filter(
             (el) => el.innerHTML === ""
           );
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         } else if (eightLineXCt.length === 2 && eightLineOCt.length === 0) {
           const blockingMove = this.eightLine.filter(
             (el) => el.innerHTML === ""
           );
           blockingMove[0].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
           // Start cases where neither can win
         } else {
           let openSquares = this.catsGame.filter((el) => el.innerHTML === "");
           let indifferentTie = Math.floor(Math.random() * 2);
           openSquares[indifferentTie].innerHTML = this.O;
-          this.winningMessage.innerHTML = "";
-          this.turn = "X";
-          this.turnNum++;
+          this.compStatusChange();
         }
       }
     }
   }
 
+  // Refactored to shorten code
+  oneSqCompMove() {
+    this.one.innerHTML = this.O;
+    this.compStatusChange();
+  }
+
+  twoSqCompMove() {
+    this.two.innerHTML = this.O;
+    this.compStatusChange();
+  }
+
+  threeSqCompMove() {
+    this.three.innerHTML = this.O;
+    this.compStatusChange();
+  }
+
+  fourSqCompMove() {
+    this.four.innerHTML = this.O;
+    this.compStatusChange();
+  }
+
+  fiveSqCompMove() {
+    this.five.innerHTML = this.O;
+    this.compStatusChange();
+  }
+
+  sixSqCompMove() {
+    this.six.innerHTML = this.O;
+    this.compStatusChange();
+  }
+
+  sevenSqCompMove() {
+    this.seven.innerHTML = this.O;
+    this.compStatusChange();
+  }
+
+  eightSqCompMove() {
+    this.eight.innerHTML = this.O;
+    this.compStatusChange();
+  }
+
+  nineSqCompMove() {
+    this.nine.innerHTML = this.O;
+    this.compStatusChange();
+  }
+
+  compStatusChange() {
+    this.winningMessage.innerHTML = "";
+    this.turn = "X";
+    this.turnNum++;
+  }
+
+  // Set the "thinking" text for computer, then call the move function
   computerLevel() {
     if (this.darkMode === "off" && this.turn === "O") {
       this.winningMessage.innerHTML = `<p class='winning-message-light'>Thinking...</p>`;
     } else if (this.darkMode === "on" && this.turn === "O") {
       this.winningMessage.innerHTML = `<p class='winning-message-darkO'>Thinking...</p>`;
     }
-    if (this.difficulty === "easy" && this.turn === "O" && this.game === "on") {
-      setTimeout(this.computerEasyMove.bind(this), 1000);
-    } else if (
-      this.difficulty === "challenge" &&
-      this.turn === "O" &&
-      this.game === "on"
-    ) {
-      setTimeout(this.computerChallengeMove.bind(this), 1000);
+    if (this.difficulty !== "2p" && this.turn === "O" && this.game === "on") {
+      setTimeout(this.computerMove.bind(this), 1000);
     }
   }
 
+  // Creates new game when level is changed or New Game is pressed
   createNewGame() {
     this.catsGame.forEach((square) => (square.innerHTML = ""));
     this.winningMessage.innerHTML = "";
@@ -1514,6 +1198,7 @@ class DarkMode {
     this.darkModeContainer = document.querySelector(".dark-mode-container");
     this.darkModeOff = document.querySelector(".dark-mode-off");
     this.darkModeOn = document.querySelector(".dark-mode-on");
+    this.playerOption = document.querySelectorAll(".player-option-label");
     this.one = document.querySelector("#one");
     this.two = document.querySelector("#two");
     this.three = document.querySelector("#three");
@@ -1545,6 +1230,7 @@ class DarkMode {
     );
   }
 
+  // Changes the static elements to either dark mode or non dark mode
   setDarkMode(e) {
     if (e.target === this.darkModeOn) {
       this.darkModeOff.classList.remove("dark-mode-selector");
@@ -1552,6 +1238,9 @@ class DarkMode {
       document.body.classList.add("dark-mode-background");
       this.darkText.classList.add("dark-mode-text");
       this.newGame.classList.add("new-game-dark");
+      this.playerOption.forEach(option => {
+        option.classList.add("player-option-label-dark");
+      })
       this.boardArray.forEach((square) => {
         square.classList.add(`${square.id}-dark`);
       });
@@ -1568,6 +1257,9 @@ class DarkMode {
       document.body.classList.remove("dark-mode-background");
       this.darkText.classList.remove("dark-mode-text");
       this.newGame.classList.remove("new-game-dark");
+      this.playerOption.forEach(option => {
+        option.classList.remove("player-option-label-dark");
+      })
       this.boardArray.forEach((square) => {
         square.classList.remove(`${square.id}-dark`);
       });
