@@ -38,7 +38,7 @@
   display: flex;
   height: 20px;
   width: 40px;
-  margin: 60px auto;
+  margin: 20px auto;
   margin-bottom: 0;
   background: #00ff44;
 }
@@ -126,7 +126,7 @@
 }
 
 .winning-message {
-  margin-top: 50px;
+  margin-top: 30px;
   text-align: center;
 }
 
